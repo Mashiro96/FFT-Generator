@@ -1,0 +1,33 @@
+[debug] Created transactional ClassFileManager with tempDir = G:\FFT_generator(1)\FFT_generator\target\scala-2.12\classes.bak
+[debug] About to delete class files:
+[debug] We backup class files:
+[debug] Registering generated classes:
+[debug] 	ComplexTran.class
+[debug] 	FFT$$anon$1.class
+[debug] 	Switch$.class
+[debug] 	ComplexSub.class
+[debug] 	Exchange$.class
+[debug] 	ComplexMul.class
+[debug] 	ButterflyAdd$.class
+[debug] 	Mux4$.class
+[debug] 	ButterflyMul$$anon$3.class
+[debug] 	ButterflyAdd$$anon$2.class
+[debug] 	ButterflyMul.class
+[debug] 	ComplexAdd.class
+[debug] 	Switch$$anon$4.class
+[debug] 	ComplexMul$.class
+[debug] 	FFT.class
+[debug] 	ComplexAdd$.class
+[debug] 	Exchange$$anon$5.class
+[debug] 	ComplexSub$.class
+[debug] 	ComplexIO.class
+[debug] 	ComplexTran$.class
+[debug] 	MyComplex.class
+[debug] 	ButterflyAdd.class
+[debug] 	Config.class
+[debug] 	ComplexTran$$anon$1.class
+[debug] 	ButterflyMul$.class
+[debug] 	Switch.class
+[debug] 	Mux4.class
+[debug] 	Exchange.class
+[debug] Removing the temporary directory used for backing up class files: G:\FFT_generator(1)\FFT_generator\target\scala-2.12\classes.bak

@@ -1,0 +1,10 @@
+[debug] Created transactional ClassFileManager with tempDir = G:\FFT_generator(1)\FFT_generator\target\scala-2.12\test-classes.bak
+[debug] About to delete class files:
+[debug] We backup class files:
+[debug] Registering generated classes:
+[debug] 	FFTTestMain$.class
+[debug] 	Complex.class
+[debug] 	FFTTestMain.class
+[debug] 	FFTTestMain$delayedInit$body.class
+[debug] 	FFTTest.class
+[debug] Removing the temporary directory used for backing up class files: G:\FFT_generator(1)\FFT_generator\target\scala-2.12\test-classes.bak

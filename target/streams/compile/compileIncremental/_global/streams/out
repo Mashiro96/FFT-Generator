@@ -1,0 +1,59 @@
+[debug] [zinc] IncrementalCompile -----------
+[debug] IncrementalCompile.incrementalCompile
+[debug] previous = Stamps for: 0 products, 0 sources, 0 libraries
+[debug] current source = Set(${BASE}/src/main/scala/FFT/Config.scala, ${BASE}/src/main/scala/FFT/FFT.scala, ${BASE}/src/main/scala/FFT/Modules.scala)
+[debug] > initialChanges = InitialChanges(Changes(added = Set(${BASE}/src/main/scala/FFT/Modules.scala, ${BASE}/src/main/scala/FFT/Config.scala, ${BASE}/src/main/scala/FFT/FFT.scala), removed = Set(), changed = Set(), unmodified = ...),Set(),Set(),API Changes: Set())
+[debug] Full compilation, no sources in previous analysis.
+[debug] all 3 sources are invalidated
+[debug] Initial set of included nodes: 
+[debug] Recompiling all sources: number of invalidated sources > 50.0% of all sources
+[debug] compilation cycle 1
+[info] compiling 3 Scala sources to G:\FFT_generator(1)\FFT_generator\target\scala-2.12\classes ...
+[debug] Getting org.scala-sbt:compiler-bridge_2.12:1.5.3:compile for Scala 2.12.8
+[info] Non-compiled module 'compiler-bridge_2.12' for Scala 2.12.8. Compiling...
+[debug] Creating plain compiler interface for 2.12.8.
+[debug]   > Arguments: 
+[debug] 	-d
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_45f283d6
+[debug] 	-nowarn
+[debug] 	-bootclasspath
+[debug] 	C:\Program Files\Java\jdk1.8.0_301\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_301\jre\classes;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-library\2.12.8\scala-library-2.12.8.jar
+[debug] 	-classpath
+[debug] 	C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-sbt\compiler-interface\1.5.3\compiler-interface-1.5.3.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-sbt\util-interface\1.5.0\util-interface-1.5.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-sbt\compiler-bridge_2.12\1.5.3\compiler-bridge_2.12-1.5.3-sources.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-compiler\2.12.8\scala-compiler-2.12.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-reflect\2.12.8\scala-reflect-2.12.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\modules\scala-xml_2.12\1.0.6\scala-xml_2.12-1.0.6.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\jline\jline\2.14.6\jline-2.14.6.jar
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\scala\ZincCompat.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\API.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\AbstractZincFile.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\Analyzer.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\CallbackGlobal.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\ClassName.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\Compat.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\CompilerBridge.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\ConsoleBridge.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\DelegatingReporter.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\Dependency.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\ExtractAPI.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\ExtractUsedNames.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\GlobalHelpers.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\InteractiveConsoleBridge.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\InteractiveConsoleFactoryBridge.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\InteractiveConsoleHelper.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\InteractiveConsoleResponse.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\JarUtils.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\JavaUtils.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\LocalToNonLocalClass.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\LocateClassFile.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\Log.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\Message.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\PlainNioFile.scala
+[debug] 	C:\Users\13935\AppData\Local\Temp\sbt_4ff62da5\xsbt\ScaladocBridge.scala
+[debug]       
+[info]   Compilation completed in 8.362s.
+[debug] [zinc] Running cached compiler 6ee32bd7 for Scala compiler version 2.12.8
+[debug] [zinc] The Scala compiler is invoked with:
+[debug] 	-Xsource:2.11
+[debug] 	-bootclasspath
+[debug] 	C:\Program Files\Java\jdk1.8.0_301\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_301\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_301\jre\classes;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-library\2.12.8\scala-library-2.12.8.jar
+[debug] 	-classpath
+[debug] 	G:\FFT_generator(1)\FFT_generator\target\scala-2.12\classes;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\edu\berkeley\cs\chisel3_2.12\3.2.8\chisel3_2.12-3.2.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\edu\berkeley\cs\chisel-iotesters_2.12\1.3.8\chisel-iotesters_2.12-1.3.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\scala-reflect\2.12.8\scala-reflect-2.12.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\com\github\scopt\scopt_2.12\3.7.1\scopt_2.12-3.7.1.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\edu\berkeley\cs\firrtl_2.12\1.2.8\firrtl_2.12-1.2.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\edu\berkeley\cs\firrtl-interpreter_2.12\1.2.8\firrtl-interpreter_2.12-1.2.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\edu\berkeley\cs\treadle_2.12\1.1.8\treadle_2.12-1.1.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\junit\junit\4.12\junit-4.12.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scalatest\scalatest_2.12\3.0.8\scalatest_2.12-3.0.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scalacheck\scalacheck_2.12\1.14.0\scalacheck_2.12-1.14.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\antlr\antlr4-runtime\4.7.1\antlr4-runtime-4.7.1.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\com\google\protobuf\protobuf-java\3.4.0\protobuf-java-3.4.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\com\typesafe\scala-logging\scala-logging_2.12\3.9.0\scala-logging_2.12-3.9.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\ch\qos\logback\logback-classic\1.2.3\logback-classic-1.2.3.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\net\jcazevedo\moultingyaml_2.12\0.4.1\moultingyaml_2.12-0.4.1.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\json4s\json4s-native_2.12\3.6.7\json4s-native_2.12-3.6.7.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\apache\commons\commons-text\1.7\commons-text-1.7.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\modules\scala-jline\2.12.1\scala-jline-2.12.1.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scalactic\scalactic_2.12\3.0.8\scalactic_2.12-3.0.8.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-lang\modules\scala-xml_2.12\1.2.0\scala-xml_2.12-1.2.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\scala-sbt\test-interface\1.0\test-interface-1.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\slf4j\slf4j-api\1.7.25\slf4j-api-1.7.25.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\ch\qos\logback\logback-core\1.2.3\logback-core-1.2.3.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\com\github\nscala-time\nscala-time_2.12\2.22.0\nscala-time_2.12-2.22.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\yaml\snakeyaml\1.24\snakeyaml-1.24.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\json4s\json4s-core_2.12\3.6.7\json4s-core_2.12-3.6.7.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\apache\commons\commons-lang3\3.9\commons-lang3-3.9.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\fusesource\jansi\jansi\1.11\jansi-1.11.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\joda-time\joda-time\2.10.1\joda-time-2.10.1.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\joda\joda-convert\2.2.0\joda-convert-2.2.0.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\json4s\json4s-ast_2.12\3.6.7\json4s-ast_2.12-3.6.7.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\json4s\json4s-scalap_2.12\3.6.7\json4s-scalap_2.12-3.6.7.jar;C:\Users\13935\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\com\thoughtworks\paranamer\paranamer\2.8\paranamer-2.8.jar
+[debug] Scala compilation took 11.4823137 s
+[info] done compiling
