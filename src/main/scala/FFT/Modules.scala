@@ -63,6 +63,7 @@ class ComplexIO[T <: MyComplex](complex:T) extends Bundle {
   val op1 = Input(complex)
   val op2 = Input(complex)
   val res = Output(complex)
+
 }
 class ComplexAdd[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new ComplexIO(complex))
@@ -128,11 +129,11 @@ class ComplexMul[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new ComplexIO(complex))
   if(use_float) {
     if(useGauss) {
-      val k1 = FloatAdd(FloatMul(io.op2.re.asUInt(),io.op1.re.asUInt()),io.op1.im.asUInt())
-      val k2 = FloatSub(FloatMul(io.op1.re.asUInt(),io.op2.im.asUInt()),io.op2.re.asUInt())
-      val k3 = FloatAdd(FloatMul(io.op1.im.asUInt(),io.op2.re.asUInt()),io.op2.im.asUInt())
-      io.res.re := k1 - k3
-      io.res.im := k1 + k2
+      val k1 = FloatMul(io.op2.re.asUInt(), FloatAdd(io.op1.re.asUInt(), io.op1.im.asUInt()))
+      val k2 = FloatMul(io.op1.re.asUInt(), FloatSub(io.op2.im.asUInt(), io.op2.re.asUInt()))
+      val k3 = FloatMul(io.op1.im.asUInt(), FloatAdd(io.op2.re.asUInt(), io.op2.im.asUInt()))
+      io.res.re := FloatSub(k1, k3)
+      io.res.im := FloatAdd(k1, k2)
     }
     else {
       io.res.re := FloatSub(FloatMul(io.op1.re.asUInt(),io.op2.re.asUInt()),FloatMul(io.op1.im.asUInt(),io.op2.im.asUInt()))
