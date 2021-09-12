@@ -1,5 +1,5 @@
 project/target
-target
+target/*
 test_run_dir
 .idea
 null

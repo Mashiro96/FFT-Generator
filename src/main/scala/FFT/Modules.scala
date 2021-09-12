@@ -59,13 +59,12 @@ object ComplexDecode {
 }
 //class MyComplex extends Bundle with Config {
 //}
-class ComplexIO(complex:MyComplex) extends Bundle {
+class ComplexIO[T <: MyComplex](complex:T) extends Bundle {
   val op1 = Input(complex)
   val op2 = Input(complex)
   val res = Output(complex)
-
 }
-class ComplexAdd(complex:MyComplex) extends Module with Config {
+class ComplexAdd[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new ComplexIO(complex))
   if(use_float) {
     io.res.re := FloatAdd(io.op1.re.asUInt,io.op2.re.asUInt)
@@ -84,7 +83,7 @@ object ComplexAdd extends Config{
     inst.io.res
   }
 }
-class ComplexSub(complex:MyComplex) extends Module with Config {
+class ComplexSub[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new ComplexIO(complex))
   if(use_float) {
     io.res.re := FloatSub(io.op1.re.asUInt(), io.op2.re.asUInt())
@@ -103,7 +102,7 @@ object ComplexSub extends Config{
     inst.io.res
   }
 }
-class ComplexTran(complex:MyComplex) extends Module with Config {
+class ComplexTran[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new Bundle {
     val in = Input(complex)
     val out = Output(complex)
@@ -125,7 +124,7 @@ object ComplexTran extends Config {
     inst.io.out
   }
 }
-class ComplexMul(complex:MyComplex) extends Module with Config {
+class ComplexMul[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new ComplexIO(complex))
   if(use_float) {
     if(useGauss) {
@@ -161,7 +160,7 @@ object ComplexMul extends Config {
     inst.io.res
   }
 }
-class ButterflyAdd(complex:MyComplex) extends Module with Config {
+class ButterflyAdd[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new Bundle {
     val in = Input(Vec(radix, complex))
     val out = Output(Vec(radix, complex))
@@ -177,14 +176,14 @@ class ButterflyAdd(complex:MyComplex) extends Module with Config {
   }
 }
 object ButterflyAdd extends Config {
-  def apply(in: Vec[MyComplex]): Vec[MyComplex] = {
+  def apply(in: Vec[MyComplex with Config]): Vec[MyComplex with Config] = {
     val complex = if(use_float) new MyFloatComplex else new MyFixComplex
     val inst = Module(new ButterflyAdd(complex))
     inst.io.in := in
     inst.io.out
   }
 }
-class ButterflyMul(complex:MyComplex) extends Module with Config {
+class ButterflyMul[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new Bundle {
     val in = Input(Vec(radix, complex))
     val out = Output(Vec(radix, complex))
@@ -211,7 +210,7 @@ class ButterflyMul(complex:MyComplex) extends Module with Config {
   }
 }
 object ButterflyMul extends Config{
-  def apply(in: Vec[MyComplex], wn: List[MyComplex]): Vec[MyComplex] = {
+  def apply(in: Vec[MyComplex with Config], wn: List[MyComplex with Config]): Vec[MyComplex with Config] = {
     val complex = if(use_float) new MyFloatComplex else new MyFixComplex
     val inst = Module(new ButterflyMul(complex))
     inst.io.in := in
@@ -227,7 +226,7 @@ object Mux4 extends Config{
     inst
   }
 }
-class Switch(delay: Int, complex:MyComplex) extends Module with Config {
+class Switch[T <: MyComplex](delay: Int, complex:T) extends Module with Config {
   val io = IO(new Bundle{
     val in = Input(Vec(radix, complex))
     val out = Output(Vec(radix, complex))
@@ -246,7 +245,7 @@ class Switch(delay: Int, complex:MyComplex) extends Module with Config {
   }
 }
 object Switch extends Config{
-  def apply(in: Vec[MyComplex], sel: UInt, delay:Int): Vec[MyComplex] = {
+  def apply(in: Vec[MyComplex with Config], sel: UInt, delay:Int): Vec[MyComplex with Config] = {
     val complex = if(use_float) new MyFloatComplex else new MyFixComplex
     val inst = Module(new Switch(delay, complex))
     inst.io.in := in
@@ -254,7 +253,7 @@ object Switch extends Config{
     inst.io.out
   }
 }
-class Exchange(complex:MyComplex) extends Module with Config {
+class Exchange[T <: MyComplex](complex:T) extends Module with Config {
   val io = IO(new Bundle {
     val in = Input(Vec(radix, Vec(radix, complex)))
     val out = Output(Vec(radix, Vec(radix, complex)))
@@ -267,7 +266,7 @@ class Exchange(complex:MyComplex) extends Module with Config {
   //(0 until radix).map(x => (0 until radix).map(y => io.out(x)(y) := io.in(y)(x)))
 }
 object Exchange extends Config{
-  def apply(in: List[Vec[MyComplex]]): Vec[Vec[MyComplex]] = {
+  def apply(in: List[Vec[MyComplex with Config]]): Vec[Vec[MyComplex with Config]] = {
     val complex = if(use_float) new MyFloatComplex else new MyFixComplex
     val inst = Module(new Exchange(complex))
     inst.io.in := in
