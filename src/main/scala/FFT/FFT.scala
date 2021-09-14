@@ -4,10 +4,7 @@ import chisel3._
 import chisel3.experimental._
 import chisel3.util._
 import hardfloat._
-
-import scala.collection.mutable.ListBuffer
 import scala.math._
-
 
 class TopIO extends Bundle with Config {
   val dIn = Input(Vec(FFTparallel_r * radix, if(use_float) new IEEEComplex else new MyFixComplex))
@@ -20,23 +17,16 @@ class TopIO extends Bundle with Config {
 class FFT extends Module with Config{
   val complex = if(use_float) new MyFloatComplex else new MyFixComplex
   val io = IO( new TopIO
-    //new Bundle {
-    //val dIn = Input(Vec(FFTparallel_r * radix, complex))
-    //val dOut = Output(Vec(FFTparallel_r * radix, complex))
-    //val din_valid = Input(new Bool())
-    //val dout_valid = Output(new Bool())
-    //val busy = Output(new Bool())
-  //}
   )
 
 //design wntable for every BF
   def sinTableFix(s: Int, n: Int): Vec[FixedPoint] = {
     val times = (0 until FFTlength / radix by pow(radix, s).toInt).map(i => -(2 * n * i * Pi) / FFTlength.toDouble)
-    VecInit(times.map(i => FixedPoint.fromDouble(sin(i), DataWidth.W, BinaryPoint.BP)))
+    VecInit(times.map(i => FixedPoint.fromDouble(sin(i), FixDataWidth.W, BinaryPoint.BP)))
   }
   def cosTableFix(s: Int, n: Int): Vec[FixedPoint] = {
     val times = (0 until FFTlength / radix by pow(radix, s).toInt).map(i => -(2 * n * i * Pi) / FFTlength.toDouble)
-    VecInit(times.map(i => FixedPoint.fromDouble(cos(i), DataWidth.W, BinaryPoint.BP)))
+    VecInit(times.map(i => FixedPoint.fromDouble(cos(i), FixDataWidth.W, BinaryPoint.BP)))
   }
   def wnTableFix(stage: Int, stride: Int)(idx: UInt): MyFixComplex = {
     val res = Wire(new MyFixComplex())
@@ -47,13 +37,11 @@ class FFT extends Module with Config{
 
   def sinTableFlt(s: Int, n: Int): Vec[UInt] = {
     val times = (0 until FFTlength / radix by pow(radix, s).toInt).map(i => -(2 * n * i * Pi) / FFTlength.toDouble)
-    //val times = temp.map(x => if(float_point_format == 32) x.toFloat else x.toDouble)
     var temp = Seq[UInt]()
-    if(float_point_format == 32) {
-      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(i).toFloat).S(32.W).asTypeOf(UInt(32.W))))
-    }
-    else if(float_point_format == 64) {
-      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToLongBits(sin(i)).S(64.W).asTypeOf(UInt(32.W))))
+    if (float_point_format == 32) {
+      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(i).toFloat).S(float_point_format.W).asUInt()))
+    } else if(float_point_format == 64) {
+      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(sin(i)).S(float_point_format.W).asUInt()))
     }
     VecInit(temp)
   }
@@ -61,10 +49,9 @@ class FFT extends Module with Config{
     val times = (0 until FFTlength / radix by pow(radix, s).toInt).map(i => -(2 * n * i * Pi) / FFTlength.toDouble)
     var temp = Seq[UInt]()
     if(float_point_format == 32) {
-      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(i).toFloat).S(32.W).asUInt()))
-    }
-    else if(float_point_format == 64) {
-      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToLongBits(cos(i)).S(64.W).asUInt()))
+      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(i).toFloat).S(float_point_format.W).asUInt()))
+    } else if(float_point_format == 64){
+      temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(cos(i)).S(float_point_format.W).asUInt()))
     }
     VecInit(temp)
   }
@@ -88,9 +75,9 @@ class FFT extends Module with Config{
 //data define:
 //data1 is the input of this stages' BF ; data2 is the output
 //FFTstage means which stages' BF; FFTparallel_r means the number of the BF; radix means the input amount
-  val data1 = Seq.fill(FFTstage)(Seq.fill(FFTparallel_r)(VecInit(Seq.fill(radix)(0.S(if(use_float) (2*(float_point_format+1)).W else (2 * DataWidth).W).asTypeOf(complex)))))
-  val data2 = Seq.fill(FFTstage - 1)(Seq.fill(FFTparallel_r)(VecInit(Seq.fill(radix)(0.S(if(use_float) (2*(float_point_format+1)).W else (2 * DataWidth).W).asTypeOf(complex)))))
-  val datao = VecInit(Seq.fill(radix * FFTparallel_r)(0.S(if(use_float) (2*(float_point_format + 1)).W else (2 * DataWidth).W).asTypeOf(complex)))
+  val data1 = Seq.fill(FFTstage)(Seq.fill(FFTparallel_r)(VecInit(Seq.fill(radix)(0.S((2 * DataWidth).W).asTypeOf(complex)))))
+  val data2 = Seq.fill(FFTstage - 1)(Seq.fill(FFTparallel_r)(VecInit(Seq.fill(radix)(0.S((2 * DataWidth).W).asTypeOf(complex)))))
+  val datao = VecInit(Seq.fill(radix * FFTparallel_r)(0.S((2 * DataWidth).W).asTypeOf(complex)))
 
 //data calcute flow: data1 => data2
   for (i <- 0 until FFTstage - 1) {
@@ -104,7 +91,6 @@ class FFT extends Module with Config{
      val wnList =  (1 until radix).map(y => if(use_float) wnTableFlt(i, y)(startlist(x).asUInt + wnCtrl) else wnTableFix(i, y)(startlist(x).asUInt + wnCtrl)).toList
       data2(i)(x) := ButterflyMul(data1(i)(x), wnList)
     }
-    //(0 until FFTparallel_r).map(x => data2(i)(x) := ButterflyMul(data1(i)(x), (1 until radix).map(y => wnTable(i, y)(startlist(x).asUInt + wnCtrl)).toList))
   }
 
   val dataotemp = (0 until FFTparallel_r).map(x => ButterflyAdd(data1(FFTstage - 1)(x)))
@@ -154,6 +140,3 @@ class FFT extends Module with Config{
     io.dOut := RegNext(datao)
   }
 }
-
-
-

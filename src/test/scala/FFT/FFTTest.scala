@@ -67,12 +67,19 @@ class FFTTest(c:FFT) extends PeekPokeTester(c) with Config {
             val diNum = radix * j + k
             val re = -bound.toInt / 2 + r.nextInt(bound.toInt)
             val im = -bound.toInt / 2 + r.nextInt(bound.toInt)
-            val reFlt = java.lang.Float.floatToIntBits((2*re / bound).toFloat)
-            val imFlt = java.lang.Float.floatToIntBits((2*im / bound).toFloat)
+            val reFlt32 = java.lang.Float.floatToIntBits((2*re / bound).toFloat)
+            val imFlt32 = java.lang.Float.floatToIntBits((2*im / bound).toFloat)
+            val reFlt64 = java.lang.Double.doubleToRawLongBits((2*re / bound).toFloat)
+            val imFlt64 = java.lang.Double.doubleToRawLongBits((2*im / bound).toFloat)
             a(aNum) = new Complex(2 * re / bound, 2 * im / bound)
             if(use_float) {
-              poke(c.io.dIn(diNum).re, reFlt)
-              poke(c.io.dIn(diNum).im, imFlt)
+              if (float_point_format == 32) {
+                poke(c.io.dIn(diNum).re, reFlt32)
+                poke(c.io.dIn(diNum).im, imFlt32)
+              } else if (float_point_format == 64) {
+                poke(c.io.dIn(diNum).re, reFlt64)
+                poke(c.io.dIn(diNum).im, imFlt64)
+              }
             }
             else {
               poke(c.io.dIn(diNum).re, re)
@@ -104,7 +111,11 @@ class FFTTest(c:FFT) extends PeekPokeTester(c) with Config {
             var ref1 = ref(reverse(refNum, log2Ceil(FFTlength)))
             var data = peek(c.io.dOut(doNum))
             if(use_float) {
-              error1 = abs(((java.lang.Float.intBitsToFloat(data("re").toInt) - ref1.re) / (ref1.re + eps) + (java.lang.Float.intBitsToFloat(data("im").toInt) - ref1.im) / (ref1.im + eps)) / 2.0)
+              if(float_point_format == 32) {
+                error1 = abs(((java.lang.Float.intBitsToFloat(data("re").toInt) - ref1.re) / (ref1.re + eps) + (java.lang.Float.intBitsToFloat(data("im").toInt) - ref1.im) / (ref1.im + eps)) / 2.0)
+              } else if(float_point_format == 64) {
+                error1 = abs(((java.lang.Double.doubleToRawLongBits(data("re").toLong) - ref1.re) / (ref1.re + eps) + (java.lang.Double.doubleToRawLongBits(data("im").toLong) - ref1.im) / (ref1.im + eps)) / 2.0)
+              }
             }
             else {
               error1 = abs((((2 * data("re").toDouble / bound) - ref1.re) / (ref1.re + eps) + ((2 * data("im").toDouble / bound) - ref1.im) / (ref1.im + eps)) / 2.0)

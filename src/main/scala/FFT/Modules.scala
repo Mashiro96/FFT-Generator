@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.experimental._
 import chisel3.util._
 import hardfloat._
+import scala.math._
 
 abstract class MyComplex extends Bundle {
   val re:Bits
@@ -16,8 +17,8 @@ class IEEEComplex extends MyComplex with Config {
 }
 
 class MyFixComplex extends MyComplex with Config {
-  val re = FixedPoint(DataWidth.W, BinaryPoint.BP)
-  val im = FixedPoint(DataWidth.W, BinaryPoint.BP)
+  val re = FixedPoint(FixDataWidth.W, BinaryPoint.BP)
+  val im = FixedPoint(FixDataWidth.W, BinaryPoint.BP)
 }
 
 class MyFloatComplex extends MyComplex with Config {
@@ -173,6 +174,35 @@ class ButterflyAdd[T <: MyComplex](complex:T) extends Module with Config {
     io.out(1) := ComplexSub(ComplexAdd(io.in(0), io.in(2)), ComplexAdd(io.in(1), io.in(3)))
     io.out(2) := ComplexAdd(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
     io.out(3) := ComplexSub(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
+  } else if (radix == 8) {
+    val mulre = if(use_float) {
+      if (float_point_format == 32) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(-Pi / 4).toFloat).S(float_point_format.W).asUInt)
+      else recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(cos(-Pi / 4)).S(float_point_format.W).asUInt)
+    }  else FixedPoint.fromDouble(cos(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    val mulim = if(use_float) {
+      if(float_point_format == 32) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(- Pi / 4).toFloat).S(float_point_format.W).asUInt)
+      else recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(sin(-Pi / 4)).S(float_point_format.W).asUInt)
+    } else FixedPoint.fromDouble(sin(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    val mul1 = Cat(mulre,mulim).asTypeOf(if(use_float) new MyFloatComplex else new MyFixComplex)
+    val temp_data = VecInit(Seq.fill(8)(0.S.asTypeOf(complex)))
+    (0 until 4).map(x => temp_data(x) := ComplexAdd(io.in(x), io.in(x + 4)))
+    (0 until 4).map(x => temp_data(4 + x) := ComplexSub(io.in(x), io.in(x + 4)))
+    val A02 = ComplexAdd(temp_data(0), temp_data(2))
+    val S02 = ComplexSub(temp_data(0), temp_data(2))
+    val A13 = ComplexAdd(temp_data(1), temp_data(3))
+    val S13 = ComplexSub(temp_data(1), temp_data(3))
+    val A46 = ComplexAdd(temp_data(4), ComplexTran(temp_data(6)))
+    val S46 = ComplexSub(temp_data(4), ComplexTran(temp_data(6)))
+    val A57 = ComplexAdd(temp_data(5), ComplexTran(temp_data(7)))
+    val S57 = ComplexSub(temp_data(5), ComplexTran(temp_data(7)))
+    io.out(0) := ComplexAdd(A02, A13)
+    io.out(1) := ComplexSub(A02, A13)
+    io.out(2) := ComplexAdd(S02, ComplexTran(S13))
+    io.out(3) := ComplexSub(S02, ComplexTran(S13))
+    io.out(4) := ComplexAdd(A46, ComplexMul(A57, mul1))
+    io.out(5) := ComplexSub(A46,ComplexMul(A57,mul1))
+    io.out(6) := ComplexAdd(S46,ComplexTran(ComplexMul(S57, mul1)))
+    io.out(7) := ComplexSub(S46,ComplexTran(ComplexMul(S57, mul1)))
   }
 }
 object ButterflyAdd extends Config {
@@ -198,6 +228,31 @@ class ButterflyMul[T <: MyComplex](complex:T) extends Module with Config {
     temp(1) := ComplexSub(ComplexAdd(io.in(0), io.in(2)), ComplexAdd(io.in(1), io.in(3)))
     temp(2) := ComplexAdd(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
     temp(3) := ComplexSub(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
+  } else if (radix == 8) {
+    val mulre = if(use_float) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(- Pi / 4).toFloat).S(float_point_format.W).asTypeOf(UInt(32.W)))
+    else FixedPoint.fromDouble(cos(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    val mulim = if(use_float) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(- Pi / 4).toFloat).S(float_point_format.W).asTypeOf(UInt(32.W)))
+    else FixedPoint.fromDouble(sin(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    val mul1 = Cat(mulre,mulim).asTypeOf(if(use_float) new MyFloatComplex else new MyFixComplex)
+    val temp_data = VecInit(Seq.fill(8)(0.S.asTypeOf(complex)))
+    (0 until 4).map(x => temp_data(x) := ComplexAdd(io.in(x), io.in(x + 4)))
+    (0 until 4).map(x => temp_data(4 + x) := ComplexSub(io.in(x), io.in(x + 4)))
+    val A02 = ComplexAdd(temp_data(0), temp_data(2))
+    val S02 = ComplexSub(temp_data(0), temp_data(2))
+    val A13 = ComplexAdd(temp_data(1), temp_data(3))
+    val S13 = ComplexSub(temp_data(1), temp_data(3))
+    val A46 = ComplexAdd(temp_data(4), ComplexTran(temp_data(6)))
+    val S46 = ComplexSub(temp_data(4), ComplexTran(temp_data(6)))
+    val A57 = ComplexAdd(temp_data(5), ComplexTran(temp_data(7)))
+    val S57 = ComplexSub(temp_data(5), ComplexTran(temp_data(7)))
+    temp(0) := ComplexAdd(A02, A13)
+    temp(1) := ComplexSub(A02, A13)
+    temp(2) := ComplexAdd(S02, ComplexTran(S13))
+    temp(3) := ComplexSub(S02, ComplexTran(S13))
+    temp(4) := ComplexAdd(A46, ComplexMul(A57, mul1))
+    temp(5) := ComplexSub(A46,ComplexMul(A57,mul1))
+    temp(6) := ComplexAdd(S46,ComplexTran(ComplexMul(S57, mul1)))
+    temp(7) := ComplexSub(S46,ComplexTran(ComplexMul(S57, mul1)))
   }
   if(radix == 2) {
     io.out(0) := temp(0)
@@ -207,6 +262,15 @@ class ButterflyMul[T <: MyComplex](complex:T) extends Module with Config {
     io.out(1) := ComplexMul(temp(1), io.wn(1))
     io.out(2) := ComplexMul(temp(2), io.wn(0))
     io.out(3) := ComplexMul(temp(3), io.wn(2))
+  } else if (radix == 8) {
+    io.out(0) := temp(0)
+    io.out(1) := ComplexMul(temp(1), io.wn(3))
+    io.out(2) := ComplexMul(temp(2), io.wn(1))
+    io.out(3) := ComplexMul(temp(3), io.wn(5))
+    io.out(4) := ComplexMul(temp(4), io.wn(0))
+    io.out(5) := ComplexMul(temp(5), io.wn(4))
+    io.out(6) := ComplexMul(temp(6), io.wn(2))
+    io.out(7) := ComplexMul(temp(7), io.wn(6))
   }
 }
 object ButterflyMul extends Config{
@@ -218,31 +282,20 @@ object ButterflyMul extends Config{
     inst.io.out
   }
 }
-object Mux4 extends Config{
-  def apply(sel: UInt, in1:MyComplex, in2:MyComplex, in3:MyComplex, in4:MyComplex): MyComplex = {
-    val complex = if(use_float) new MyFloatComplex else new MyFixComplex
-    val inst = Wire(complex)
-    inst := Mux((sel === 0.U), in1, Mux((sel === 1.U), in2, Mux((sel === 2.U), in3, in4)))
-    inst
-  }
-}
 class Switch[T <: MyComplex](delay: Int, complex:T) extends Module with Config {
   val io = IO(new Bundle{
     val in = Input(Vec(radix, complex))
     val out = Output(Vec(radix, complex))
-    val sel = Input(UInt((radix / 2).W))
+    val sel = Input(UInt(log2Ceil(radix).W))
   })
+  def VecShift(in: Vec[T], t: Int): Vec[T] = {
+    val l_temp = in.toList
+    val v_temp = (0 until t).map(x => l_temp(x + radix - t)).toList ::: (t until radix).map(x => l_temp(x - t)).toList
+    VecInit(v_temp)
+  }
   val swdata = VecInit(Seq.fill(radix)(0.S((2 * DataWidth).W).asTypeOf(complex)))
   (0 until radix).map(x => swdata(x) := ShiftRegister(io.in(x), x * delay))
-  if (radix == 2) {
-    io.out(0) := ShiftRegister(Mux((io.sel === 1.U), swdata(1), swdata(0)), delay)
-    io.out(1) := Mux((io.sel === 1.U), swdata(0), swdata(1))
-  } else if (radix == 4) {
-    io.out(0) := ShiftRegister(Mux4(io.sel, swdata(0), swdata(1), swdata(2), swdata(3)), 3 * delay)
-    io.out(1) := ShiftRegister(Mux4(io.sel, swdata(3), swdata(0), swdata(1), swdata(2)), 2 * delay)
-    io.out(2) := ShiftRegister(Mux4(io.sel, swdata(2), swdata(3), swdata(0), swdata(1)), 1 * delay)
-    io.out(3) := Mux4(io.sel, swdata(1), swdata(2), swdata(3), swdata(0))
-  }
+  (0 until radix).map(x => io.out(x) := ShiftRegister(VecShift(io.in, x)(io.sel), (radix - 1 - x) * delay))
 }
 object Switch extends Config{
   def apply(in: Vec[MyComplex with Config], sel: UInt, delay:Int): Vec[MyComplex with Config] = {
@@ -263,7 +316,6 @@ class Exchange[T <: MyComplex](complex:T) extends Module with Config {
       io.out(i)(j) := io.in(j)(i)
     }
   }
-  //(0 until radix).map(x => (0 until radix).map(y => io.out(x)(y) := io.in(y)(x)))
 }
 object Exchange extends Config{
   def apply(in: List[Vec[MyComplex with Config]]): Vec[Vec[MyComplex with Config]] = {
