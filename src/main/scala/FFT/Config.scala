@@ -15,7 +15,7 @@ trait Config {
     case 64 => 53
   }
 
-  val float_point_format = 64   // support 32, 64
+  val float_point_format = 64   // support 16, 32, 64
   val expWidth = exp(float_point_format)
   val sigWidth = sig(float_point_format)
   val use_float = true //当use_float=true时使用浮点数, 否则使用定点数

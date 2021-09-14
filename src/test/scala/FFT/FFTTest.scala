@@ -114,7 +114,7 @@ class FFTTest(c:FFT) extends PeekPokeTester(c) with Config {
               if(float_point_format == 32) {
                 error1 = abs(((java.lang.Float.intBitsToFloat(data("re").toInt) - ref1.re) / (ref1.re + eps) + (java.lang.Float.intBitsToFloat(data("im").toInt) - ref1.im) / (ref1.im + eps)) / 2.0)
               } else if(float_point_format == 64) {
-                error1 = abs(((java.lang.Double.doubleToRawLongBits(data("re").toLong) - ref1.re) / (ref1.re + eps) + (java.lang.Double.doubleToRawLongBits(data("im").toLong) - ref1.im) / (ref1.im + eps)) / 2.0)
+                error1 = abs(((java.lang.Double.longBitsToDouble(data("re").toLong) - ref1.re) / (ref1.re + eps) + (java.lang.Double.longBitsToDouble(data("im").toLong) - ref1.im) / (ref1.im + eps)) / 2.0)
               }
             }
             else {

@@ -27,9 +27,9 @@ class MyFloatComplex extends MyComplex with Config {
 }
 
 class ComplexRecode extends Module with Config {
-  val io = IO(new Bundle {
-    val in = Input(new IEEEComplex)
-    val out = Output(new MyFloatComplex)
+      val io = IO(new Bundle {
+        val in = Input(new IEEEComplex)
+        val out = Output(new MyFloatComplex)
   })
   io.out.re := recFNFromFN(expWidth, sigWidth, io.in.re)
   io.out.im := recFNFromFN(expWidth, sigWidth, io.in.im)
@@ -175,11 +175,11 @@ class ButterflyAdd[T <: MyComplex](complex:T) extends Module with Config {
     io.out(2) := ComplexAdd(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
     io.out(3) := ComplexSub(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
   } else if (radix == 8) {
-    val mulre = if(use_float) {
+    val mulre:Bits = if(use_float) {
       if (float_point_format == 32) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(-Pi / 4).toFloat).S(float_point_format.W).asUInt)
       else recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(cos(-Pi / 4)).S(float_point_format.W).asUInt)
     }  else FixedPoint.fromDouble(cos(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
-    val mulim = if(use_float) {
+    val mulim:Bits = if(use_float) {
       if(float_point_format == 32) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(- Pi / 4).toFloat).S(float_point_format.W).asUInt)
       else recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(sin(-Pi / 4)).S(float_point_format.W).asUInt)
     } else FixedPoint.fromDouble(sin(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
@@ -229,10 +229,18 @@ class ButterflyMul[T <: MyComplex](complex:T) extends Module with Config {
     temp(2) := ComplexAdd(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
     temp(3) := ComplexSub(ComplexSub(io.in(0), io.in(2)), ComplexTran(ComplexSub(io.in(1), io.in(3))))
   } else if (radix == 8) {
-    val mulre = if(use_float) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(- Pi / 4).toFloat).S(float_point_format.W).asTypeOf(UInt(32.W)))
-    else FixedPoint.fromDouble(cos(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
-    val mulim = if(use_float) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(- Pi / 4).toFloat).S(float_point_format.W).asTypeOf(UInt(32.W)))
-    else FixedPoint.fromDouble(sin(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    val mulre:Bits = if(use_float) {
+      if (float_point_format == 32) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(-Pi / 4).toFloat).S(float_point_format.W).asUInt)
+      else recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(cos(-Pi / 4)).S(float_point_format.W).asUInt)
+    }  else FixedPoint.fromDouble(cos(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    val mulim:Bits = if(use_float) {
+      if(float_point_format == 32) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(- Pi / 4).toFloat).S(float_point_format.W).asUInt)
+      else recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(sin(-Pi / 4)).S(float_point_format.W).asUInt)
+    } else FixedPoint.fromDouble(sin(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    //val mulre = if(use_float) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(- Pi / 4).toFloat).S(float_point_format.W).asUInt())
+    //else FixedPoint.fromDouble(cos(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
+    //val mulim = if(use_float) recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(- Pi / 4).toFloat).S(float_point_format.W).asUInt())
+    //else FixedPoint.fromDouble(sin(- Pi / 4), FixDataWidth.W, BinaryPoint.BP)
     val mul1 = Cat(mulre,mulim).asTypeOf(if(use_float) new MyFloatComplex else new MyFixComplex)
     val temp_data = VecInit(Seq.fill(8)(0.S.asTypeOf(complex)))
     (0 until 4).map(x => temp_data(x) := ComplexAdd(io.in(x), io.in(x + 4)))
