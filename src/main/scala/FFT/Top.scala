@@ -30,3 +30,7 @@ class FFTtop extends Module with Config {
   }
 
 }
+
+object FFTGen extends App {
+  (new chisel3.stage.ChiselStage).emitVerilog(new FFTtop)
+}

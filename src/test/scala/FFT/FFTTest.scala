@@ -4,6 +4,7 @@ import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 import chisel3.util._
 import scala.math._
+import chisel3.stage.{ChiselStage, ChiselGeneratorAnnotation}
 
 class Complex(val re: Double, val im: Double) {
   def +(rhs: Complex): Complex = new Complex(re + rhs.re, im + rhs.im)
@@ -167,4 +168,7 @@ object FFTTestMain extends App {
     c => new FFTTest(c)
   }
 }
+
+
+
 
