@@ -167,4 +167,3 @@ object FFTTestMain extends App {
     c => new FFTTest(c)
   }
 }
-
