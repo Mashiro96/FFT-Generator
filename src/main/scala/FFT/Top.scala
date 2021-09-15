@@ -28,7 +28,6 @@ class FFTtop extends Module with Config {
     io.dout_valid := fft.io.dout_valid
     io.busy := fft.io.busy
   }
-
 }
 
 object FFTGen extends App {
