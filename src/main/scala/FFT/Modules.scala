@@ -303,7 +303,7 @@ class Switch[T <: MyComplex](delay: Int, complex:T) extends Module with Config {
   }
   val swdata = VecInit(Seq.fill(radix)(0.S((2 * DataWidth).W).asTypeOf(complex)))
   (0 until radix).map(x => swdata(x) := ShiftRegister(io.in(x), x * delay))
-  (0 until radix).map(x => io.out(x) := ShiftRegister(VecShift(io.in, x)(io.sel), (radix - 1 - x) * delay))
+  (0 until radix).map(x => io.out(x) := ShiftRegister(VecShift(swdata, x)(io.sel), (radix - 1 - x) * delay))
 }
 object Switch extends Config{
   def apply(in: Vec[MyComplex with Config], sel: UInt, delay:Int): Vec[MyComplex with Config] = {

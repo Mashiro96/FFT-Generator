@@ -9,44 +9,52 @@ class reorder extends Module with Config {
     val dIn = Input(Vec(FFTparallel_r * radix, if(use_float) new IEEEComplex else new MyFixComplex))
     val dOut = Output(if(use_float) new IEEEComplex else new MyFixComplex)
     val din_valid = Input(new Bool)
-    val do_valid = Output(new Bool)
+    val dout_valid = Output(new Bool)
     val busy = Output(new Bool)
   })
 
-  val w_cnt = RegInit(0.U(log2Ceil(datalength).W))
-  val r_cnt = RegInit(0.U(log2Ceil(FFTlength).W))
-  val do_write = io.din_valid || w_cnt =/= 0.U
-  val do_read = RegNext(w_cnt) === (datalength - 1).asUInt || r_cnt =/= 0.U
-  val buffer = VecInit(Seq.fill(FFTlength)(RegInit(0.S((2 * DataWidth).W).asTypeOf(if (use_float) new IEEEComplex else new MyFixComplex))))
+  val FFTbit = log2Ceil(FFTlength)
+  val databit = log2Ceil(datalength)
+  val radixbit = log2Ceil(radix)
 
-  def bit_reverse(j: Int): Int = {
-    var result: Int = 0
-    val times = log2Ceil(FFTlength)
+  val w_cnt = RegInit(0.U((databit + 1).W))
+  val r_cnt = RegInit(0.U((FFTbit + 1).W))
+  val do_write = io.din_valid || (w_cnt(databit) =/= 1.U && w_cnt =/= 0.U)
+  val do_read = w_cnt(databit) === 1.U || (r_cnt(FFTbit) =/= 1.U && r_cnt =/= 0.U)
+  val buffer = VecInit(Seq.fill(datalength)(VecInit(Seq.fill(FFTparallel_r * radix)(RegInit(0.S((2 * DataWidth).W).asTypeOf(if(use_float) new IEEEComplex else new MyFixComplex))))))
+ // val buffer = Vec(datalength, VecInit(Seq.fill(FFTparallel_r * radix)(RegInit(0.S((2 * DataWidth).W).asTypeOf(if(use_float) new IEEEComplex else new MyFixComplex)))))
+  //val buffer = Vec(datalength, Vec(FFTparallel_r * radix, Reg(if(use_float) new IEEEComplex else new MyFixComplex)))
+
+  def bit_reverse(j: UInt): UInt = {
+    var result: UInt = 0.U(FFTbit.W)
+    val times = FFTbit
     for (i <- 0 until times) {
-      result = result | ((j >> i) << (times - 1 - i))
+      var operator = j & (1.U(FFTbit.W) << i).asUInt
+      result = result | ((operator >> i) << (times - 1 - i)).asUInt
     }
     result
   }
-
-  def addrVec(cnt: Int): Vec[UInt] = {
-    val tempList = List.tabulate(FFTparallel_r, radix)((x,y) => datalength * radix * x + radix * cnt + y)
-    val addList = tempList.flatten.map(x => bit_reverse(x).asUInt)
-    VecInit(addList)
+  def index(p: Int, r: Int, cnt: UInt): UInt = {
+    val index_temp = (p * datalength).asUInt((FFTbit - radixbit).W) + cnt
+    bit_reverse(Cat(index_temp,r.asUInt(radixbit.W)))
   }
-  val addr = VecInit((0 until datalength).map(x => addrVec(x)).toList)
 
   when(do_write) {
     w_cnt := w_cnt + 1.U
-    for (i <- 0 until FFTparallel_r * radix) {
-      buffer(addr(w_cnt)(i)) := io.dIn(i)
-    }
+    buffer(w_cnt) := io.dIn
+  }.otherwise {
+    w_cnt := 0.U
   }
-
   when(do_read) {
     r_cnt := r_cnt + 1.U
-    io.dOut := buffer(r_cnt)
+  }.otherwise {
+    r_cnt := 0.U
   }
 
+  val addr = bit_reverse(r_cnt)
+  io.dOut := buffer(addr(databit-1,0))(addr(FFTbit-1,databit))
+
   io.busy := do_write || do_read
-  io.do_valid := RegNext(w_cnt) === (datalength - 1).asUInt
+  io.dout_valid := w_cnt(databit) === 1.U
+  printf("%d,%d,%d,%d,%d,%d\n", do_write, w_cnt, {buffer(w_cnt)(0).re}, r_cnt, addr, {buffer(0)(0).re})
 }

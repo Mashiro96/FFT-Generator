@@ -17,7 +17,7 @@ class Complex(val re: Double, val im: Double) {
   override def toString: String = s"Complex($re, $im)"
 }
 
-class FFTTest(c:FFT) extends PeekPokeTester(c) with Config {
+class FFTTest(c:FFTtop) extends PeekPokeTester(c) with Config {
     def fft(x: Array[Complex]): Array[Complex] = {
       fft(x, 0, x.length, 1)
     }
@@ -103,31 +103,53 @@ class FFTTest(c:FFT) extends PeekPokeTester(c) with Config {
       var error1 : Double = 0
       var ovNum1: Int = 0
       var eps: Double = 1e-9
-      for (i <- 0 until datalength) {
-        for (j <- 0 until FFTparallel_r) {
-          for (k <- 0 until radix) {
-            var refNum = j * FFTlength / FFTparallel_r + k + radix * i
-            var doNum = radix * j + k
-            var ref1 = ref(reverse(refNum, log2Ceil(FFTlength)))
-            var data = peek(c.io.dOut(doNum))
-            if(use_float) {
-              if(float_point_format == 32) {
-                error1 = abs(((java.lang.Float.intBitsToFloat(data("re").toInt) - ref1.re) / (ref1.re + eps) + (java.lang.Float.intBitsToFloat(data("im").toInt) - ref1.im) / (ref1.im + eps)) / 2.0)
-              } else if(float_point_format == 64) {
-                error1 = abs(((java.lang.Double.longBitsToDouble(data("re").toLong) - ref1.re) / (ref1.re + eps) + (java.lang.Double.longBitsToDouble(data("im").toLong) - ref1.im) / (ref1.im + eps)) / 2.0)
+      if(do_reorder) {
+        step(datalength)
+        for(i <- 0 until FFTlength) {
+          var ref1 = ref(i)
+          var data = peek(c.io.dOut(0))
+          if(use_float) {
+            if(float_point_format == 32) {
+              error1 = abs(((java.lang.Float.intBitsToFloat(data("re").toInt) - ref1.re) / (ref1.re + eps) + (java.lang.Float.intBitsToFloat(data("im").toInt) - ref1.im) / (ref1.im + eps)) / 2.0)
+            } else if(float_point_format == 64) {
+              error1 = abs(((java.lang.Double.longBitsToDouble(data("re").toLong) - ref1.re) / (ref1.re + eps) + (java.lang.Double.longBitsToDouble(data("im").toLong) - ref1.im) / (ref1.im + eps)) / 2.0)
+            }
+          } else {
+              error1 = abs((((2 * data("re").toDouble / bound) - ref1.re) / (ref1.re + eps) + ((2 * data("im").toDouble / bound) - ref1.im) / (ref1.im + eps)) / 2.0)
+          }
+          if (error1 <= 0.5) {
+              errorOne += error1
+          } else {
+              ovNum1 += 1
+          }
+          step(1)
+        }
+      } else {
+        for (i <- 0 until datalength) {
+          for (j <- 0 until FFTparallel_r) {
+            for (k <- 0 until radix) {
+              var refNum = j * FFTlength / FFTparallel_r + k + radix * i
+              var doNum = radix * j + k
+              var ref1 = ref(reverse(refNum, log2Ceil(FFTlength)))
+              var data = peek(c.io.dOut(doNum))
+              if(use_float) {
+                if(float_point_format == 32) {
+                  error1 = abs(((java.lang.Float.intBitsToFloat(data("re").toInt) - ref1.re) / (ref1.re + eps) + (java.lang.Float.intBitsToFloat(data("im").toInt) - ref1.im) / (ref1.im + eps)) / 2.0)
+                } else if(float_point_format == 64) {
+                  error1 = abs(((java.lang.Double.longBitsToDouble(data("re").toLong) - ref1.re) / (ref1.re + eps) + (java.lang.Double.longBitsToDouble(data("im").toLong) - ref1.im) / (ref1.im + eps)) / 2.0)
+                }
+              } else {
+                  error1 = abs((((2 * data("re").toDouble / bound) - ref1.re) / (ref1.re + eps) + ((2 * data("im").toDouble / bound) - ref1.im) / (ref1.im + eps)) / 2.0)
+              }
+              if (error1 <= 0.5) {
+                  errorOne += error1
+              } else {
+                  ovNum1 += 1
               }
             }
-            else {
-              error1 = abs((((2 * data("re").toDouble / bound) - ref1.re) / (ref1.re + eps) + ((2 * data("im").toDouble / bound) - ref1.im) / (ref1.im + eps)) / 2.0)
-            }
-            if (error1 <= 0.5) {
-              errorOne += error1
-            } else {
-              ovNum1 += 1
-            }
           }
+          step(1)
         }
-        step(1)
       }
       errorOne = errorOne / (FFTlength - ovNum1)
       ovNum += ovNum1
@@ -141,7 +163,7 @@ class FFTTest(c:FFT) extends PeekPokeTester(c) with Config {
   }
 
 object FFTTestMain extends App {
-  iotesters.Driver.execute(args, () => new FFT) {
+  iotesters.Driver.execute(args, () => new FFTtop) {
     c => new FFTTest(c)
   }
 }
