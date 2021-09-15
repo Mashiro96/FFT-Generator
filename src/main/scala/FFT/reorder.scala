@@ -21,10 +21,7 @@ class reorder extends Module with Config {
   val r_cnt = RegInit(0.U((FFTbit + 1).W))
   val do_write = io.din_valid || (w_cnt(databit) =/= 1.U && w_cnt =/= 0.U)
   val do_read = w_cnt(databit) === 1.U || (r_cnt(FFTbit) =/= 1.U && r_cnt =/= 0.U)
-  val initValue = VecInit(Seq.fill(datalength)(VecInit(Seq.fill(FFTparallel_r * radix)(0.S((2*DataWidth).W).asTypeOf(if(use_float) new IEEEComplex else new MyFixComplex)))))
-  val buffer = RegInit(initValue)
- // val buffer = Vec(datalength, VecInit(Seq.fill(FFTparallel_r * radix)(RegInit(0.S((2 * DataWidth).W).asTypeOf(if(use_float) new IEEEComplex else new MyFixComplex)))))
-  //val buffer = Vec(datalength, Vec(FFTparallel_r * radix, Reg(if(use_float) new IEEEComplex else new MyFixComplex)))
+  val buffer = RegInit(VecInit(Seq.fill(FFTlength)(0.S((2*DataWidth).W).asTypeOf(if(use_float) new IEEEComplex else new MyFixComplex))))
 
   def bit_reverse(j: UInt): UInt = {
     var result: UInt = 0.U(FFTbit.W)
@@ -42,7 +39,9 @@ class reorder extends Module with Config {
 
   when(do_write) {
     w_cnt := w_cnt + 1.U
-    buffer(w_cnt) := io.dIn
+    for(i <- 0 until FFTparallel_r) {
+      (0 until radix).map(x => buffer(index(i,x,w_cnt)) := io.dIn(radix * i + x))
+    }
   }.otherwise {
     w_cnt := 0.U
   }
@@ -52,11 +51,7 @@ class reorder extends Module with Config {
     r_cnt := 0.U
   }
 
-  val addr = bit_reverse(r_cnt)
-  io.dOut := buffer(addr(databit-1,0))(addr(FFTbit-1,databit))
-
+  io.dOut := buffer(r_cnt)
   io.busy := do_write || do_read
   io.dout_valid := w_cnt(databit) === 1.U
-  printf("%d,%d,%d,%d,%d,%d\n", do_write, w_cnt, {buffer(w_cnt)(0).re}, r_cnt, addr, {buffer(0)(0).re})
-  //printf(p"$do_write, $w_cnt, ${io.dIn(0).re}, ${buffer(0)(0).re}\n")
 }

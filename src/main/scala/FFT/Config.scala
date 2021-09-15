@@ -24,11 +24,11 @@ trait Config {
   val BinaryPoint = 16
 
 // config of construct
-// don't support all parallel data (datalength = 1)
+// support all parallel data (datalength = 1)
 // FFTstage - FFTparallel must > 0
-  val radix = 2  //radix of the FFT,supprot 2, 4, 8
+  val radix = 4  //radix of the FFT,supprot 2, 4, 8
   val FFTstage = 3 // FFT stages
-  val FFTparallel = 1 // the really parallel is radix ^ FFTparallel
+  val FFTparallel = 2 // the really parallel is radix ^ FFTparallel
   val useGauss = false // whether use gauss multiplier
   val do_reorder = true // true: output is one bit serial and all in order
 //  val useParallel = true // parallel input or serial input
