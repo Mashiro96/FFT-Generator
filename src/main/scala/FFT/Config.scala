@@ -22,12 +22,11 @@ trait Config {
 //config of fixedpoint data format
   val FixDataWidth = 32
   val BinaryPoint = 16
-//  val useFloat = false
 
 // config of construct
 // don't support all parallel data (datalength = 1)
 // FFTstage - FFTparallel must > 0
-  val radix = 4  //radix of the FFT,supprot 2, 4, 8
+  val radix = 2  //radix of the FFT,supprot 2, 4, 8
   val FFTstage = 3 // FFT stages
   val FFTparallel = 1 // the really parallel is radix ^ FFTparallel
   val useGauss = false // whether use gauss multiplier

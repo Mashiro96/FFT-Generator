@@ -16,8 +16,7 @@ class TopIO extends Bundle with Config {
 
 class FFT extends Module with Config{
   val complex = if(use_float) new MyFloatComplex else new MyFixComplex
-  val io = IO( new TopIO
-  )
+  val io = IO( new TopIO)
 
 //design wntable for every BF
   def sinTableFix(s: Int, n: Int): Vec[FixedPoint] = {
