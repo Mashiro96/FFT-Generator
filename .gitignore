@@ -5,3 +5,4 @@ null
 ./*.v
 ./*.fir
 ./*.anno.json
+./generated

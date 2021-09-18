@@ -14,6 +14,46 @@ class TopIO extends Bundle with Config {
   val busy = Output(new Bool())
 }
 
+object floatConvert {
+  def float2HPF(data:Float):Int = {
+    val intBits = java.lang.Float.floatToIntBits(data)
+    var resultBits = ((intBits & 0xc0000000) >> 16) + ((intBits & 0x07ffe000) >> 13)
+    if((intBits & 0x40000000) == 0) {
+      if(((intBits & 0x38000000) != 0x38000000)) {
+        //println(s"the float32 to half-precision float is negative overloaded\n")
+        //println(s"the float is ${data}")
+        //println(s"the float format is ${intBits.toHexString}")
+        resultBits = 0
+      }
+    } else {
+      if(((intBits & 0x38000000) != 0) | ((intBits & 0x07800000) == 0x07800000)) {
+        println(s"the float32 to half-precision float is positive overloaded")
+        println(s"the float is ${data}")
+        println(s"the float format is ${intBits.toHexString}")
+      }
+    }
+    //println(s"input is ${intBits.toHexString}\n")
+    //println(s"first part is ${((intBits & 0xc0000000) >> 16).toHexString}")
+    //println(s"second part is ${((intBits & 0x07ffe000) >> 13).toHexString}")
+    //println(s"half is ${(((intBits & 0xc0000000) >> 16) + ((intBits & 0x07ffe000) >> 13)).toHexString}")
+    resultBits
+  }
+
+  def HPF2float(data:Int):Float = {
+    var temp:Int = 0
+    if((data & 0x4000) == 0) {
+      temp = (((data & 0xc000).toLong << 16) + ((0x7) << 27) + ((data & 0x3fff) << 13)).toInt
+    } else {
+      temp = (((data & 0xc000).toLong << 16) + ((data & 0x3fff) << 13)).toInt
+    }
+    //println(s"first part is ${((data & 0xc000) << 16).toHexString}")
+    //println(s"second part is ${((data & 0x3fff) << 13).toHexString}")
+    //println(s"third part is ${((0x7) << 27).toHexString}")
+    //println(s"half is ${(temp).toHexString}")
+    java.lang.Float.intBitsToFloat(temp)
+  }
+}
+
 class FFT extends Module with Config{
   val complex = if(use_float) new MyFloatComplex else new MyFixComplex
   val io = IO( new TopIO)
@@ -41,7 +81,10 @@ class FFT extends Module with Config{
       temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(sin(i).toFloat).S(float_point_format.W).asUInt()))
     } else if(float_point_format == 64) {
       temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(sin(i)).S(float_point_format.W).asUInt()))
+    } else if(float_point_format == 16) {
+      temp = times.map(i => recFNFromFN(expWidth, sigWidth, floatConvert.float2HPF(sin(i).toFloat).S(16.W).asUInt()))
     }
+    //println(s"float is ${java.lang.Float.floatToIntBits(2.3.toFloat)}\n the half is ${floatConvert.float2HPF(2.3.toFloat)}")
     VecInit(temp)
   }
   def cosTableFlt(s: Int, n: Int): Vec[UInt] = {
@@ -51,6 +94,8 @@ class FFT extends Module with Config{
       temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Float.floatToIntBits(cos(i).toFloat).S(float_point_format.W).asUInt()))
     } else if(float_point_format == 64){
       temp = times.map(i => recFNFromFN(expWidth, sigWidth, java.lang.Double.doubleToRawLongBits(cos(i)).S(float_point_format.W).asUInt()))
+    } else if(float_point_format == 16) {
+      temp = times.map(i => recFNFromFN(expWidth, sigWidth, floatConvert.float2HPF(cos(i).toFloat).S(16.W).asUInt()))
     }
     VecInit(temp)
   }
